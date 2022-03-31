@@ -1,0 +1,162 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+
+    <style>
+        input:invalid {
+            border:2px solid red;
+        }
+
+        input:valid {
+            border:1px solid black;
+        }
+
+        .button {
+            background-color: RGB(92,184,92); /* Green */
+            border: none;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 13px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .button2 {border-radius: 4px;}
+        .button3 {border-radius: 4px;
+            background-color:rgb(217,83,79);}
+
+    </style>
+</head>
+
+<body>
+Limit:   <input type="text" id="limit"> Reverse: <input type="checkbox" id="check">
+                                                <select name="option" id="opcije" >
+
+                                                </select>
+    <button class="button button2" onclick="dohvatiFIlmove()">Ucitaj filmove</button>
+    <button class="button button2" onclick="Osvjezi()">Osvjezi</button><br/>
+    Unesi novi film:<br/>
+    <button class="button button2" onclick="OtkrijFormu()">Dodaj</button><br/>
+    <form id="forma" novalidate>
+
+
+        <input type="text" id="Naslov" value="Naslov" required/>
+        <input type="Number" id="Rating" value="Rating" required/> <button class="button button2" id="gumb" >Dodaj</button><br/><br/>
+        <input type="text" id="Year" value="Year" required/>
+        <input type="url" id="URLPostera" value="URL postera" required/><br/>
+    </form>
+    <div id="div"  onclick="dodajFilm()"></div>
+    <script>
+        let filmovi;
+        let filmoviGodine=[];
+        let limit;
+        document.getElementById('Naslov').style.visibility='hidden';
+        document.getElementById('Rating').style.visibility='hidden';
+        document.getElementById('Year').style.visibility='hidden';
+        document.getElementById('URLPostera').style.visibility='hidden';
+        document.getElementById('gumb').style.visibility='hidden';
+        let  div=document.getElementById("div");
+        function dohvatiFIlmove(){
+            fetch('https://bridge.hr/ipw/imdb.json')
+                .then(response => response.json())
+                .then(file => {
+                    filmovi=file;
+                    for(let i=0;i<filmovi.length;i++) {
+                        filmoviGodine.push(filmovi[i].year);
+                    }
+                     filmoviGodine=[...new Set(filmoviGodine)].sort();
+                    limit=filmovi.length;
+                    filmovi.sort();
+                    ucitajFilmove();
+                    UcitajSelect();
+                })
+        }
+        function OtkrijFormu(){
+            document.getElementById('Naslov').style.visibility='visible';
+            document.getElementById('Rating').style.visibility='visible';
+            document.getElementById('Year').style.visibility='visible';
+            document.getElementById('URLPostera').style.visibility='visible';
+            document.getElementById('gumb').style.visibility='visible';
+        }
+        function UcitajSelect(){
+            let html=``;
+            for(let i=0;i<filmoviGodine.length;i++) {
+                html += `
+                   <option value="${filmoviGodine[i]}">${filmoviGodine[i]}</option>
+
+            `;
+                document.getElementById("opcije").innerHTML=html;
+            }
+
+        }
+
+        function ucitajFilmove(){
+            let html=``;
+            html+=`
+        <table class='table table-striped'>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Year</th>
+                <th>Rating</th>
+                <th>Poster</th>
+                <th></th>
+            </tr>
+        `;
+            for(let i=0;i<limit;i++){
+                html+=
+                    `<tr>
+                    <td>${filmovi[i].index}</td>
+                    <td>${filmovi[i].name}</td>
+                    <td>${filmovi[i].year}</td>
+                    <td>${filmovi[i].rating}</td>
+                    <td><img height=60 width=40 src="${filmovi[i].poster}"></td>
+                    <td><button class="button button3" value=i; onclick="IzbrisiFilm()">Delete</button></td>
+                </tr>
+                `
+            }
+
+            html+=`
+            </table>
+        `;
+
+            console.log(html);
+            div.innerHTML=html;
+        }
+        function IzbrisiFilm(){
+            var td = event.target.parentNode;
+            var tr = td.parentNode;//daj tr
+            tr.parentNode.removeChild(tr);
+
+        }
+        function Osvjezi(){
+            limit=document.getElementById("limit").value;
+            if(document.getElementById("check").checked){
+                filmovi.reverse();
+                ucitajFilmove();
+            }
+            else{
+                ucitajFilmove();
+            }
+
+        }
+        var form = document.getElementById('forma');
+        function dodajFilm(){
+            if(form.checkValidity()){
+               // filmovi[filmovi.length+1]=filmovi
+            }
+        }
+    </script>
+
+</body>
+</html>
