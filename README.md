@@ -1,3 +1,3 @@
 # miniProject
 JsProject
-School Project of movie searching 
+of movie searching 
